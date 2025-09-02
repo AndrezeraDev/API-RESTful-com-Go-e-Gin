@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,7 @@ var albums = []album{
 }
 
 func getAlbums(ctx *gin.Context) {
+	fmt.Println("Albums retornados ")
 	ctx.IndentedJSON(http.StatusOK, albums)
 }
 
@@ -36,12 +38,26 @@ func postAlbums(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
+func getAlbumById(c *gin.Context) {
+
+	id := c.Param("id")
+
+	for _, a := range albums {
+		if a.ID == id {
+			c.IndentedJSON(http.StatusOK, a)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+}
+
 func main() {
 
 	server := gin.Default()
 
 	server.GET("/albums", getAlbums)
 	server.POST("/albums", postAlbums)
+	server.GET("/albums/:id", getAlbumById)
 
 	server.Run(":8000")
 }
